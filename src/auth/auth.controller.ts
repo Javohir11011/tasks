@@ -1,34 +1,37 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { RegisterUserDto } from './dto/register.dto';
+import { LoginUserDto } from './dto/login.dto';
+import { Public } from 'src/config/jwt/public.decorator';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Public()
+  @Post('register')
+  @ApiOperation({ summary: 'Register new user' })
+  @ApiBody({ type: RegisterUserDto })
+  @ApiResponse({ status: 200, description: 'User registered successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request. Invalid input.' })
+  register(@Body() dto: RegisterUserDto) {
+    return this.authService.registerUser(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
+  @Public()
+  @Post('login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiBody({ type: LoginUserDto })
+  @ApiResponse({ status: 200, description: 'User logged in successfully.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request. Invalid credentials.',
+  })
+  login(@Body() dto: LoginUserDto) {
+    console.log(dto);
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+    return this.authService.loginUser(dto);
   }
 }
