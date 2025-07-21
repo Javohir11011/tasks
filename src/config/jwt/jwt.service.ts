@@ -44,3 +44,4 @@ export class CustomJwtService implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 }
+
