@@ -17,3 +17,25 @@ export class RegisterUserDto {
   @IsString()
   password: string;
 }
+
+export class RegisterUserCourseDto {
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(128)
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @MinLength(4)
+  @IsString()
+  email: string;
+
+  @IsNotEmpty()
+  @MinLength(4)
+  @IsString()
+  password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
+}

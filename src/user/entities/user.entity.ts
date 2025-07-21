@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from 'src/config/role/role';
+import { Types } from 'mongoose';
 
 @Schema({ timestamps: true })
-export class StudentEntity {
+export class UserEntity {
   @Prop({ required: true })
   name: string;
 
@@ -14,6 +15,9 @@ export class StudentEntity {
 
   @Prop({ type: String, enum: Role, default: Role.User })
   role: Role;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Course' }], default: [] })
+  registeredCourses: Types.ObjectId[];
 }
 
-export const UserSchema = SchemaFactory.createForClass(StudentEntity);
+export const UserSchema = SchemaFactory.createForClass(UserEntity);

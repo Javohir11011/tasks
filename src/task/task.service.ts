@@ -3,11 +3,12 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { TaskEntity } from './entities/task.entity';
 
 @Injectable()
 export class TaskService {
   constructor(
-    @InjectModel('Task') private readonly taskModel: Model<CreateTaskDto>,
+    @InjectModel('Task') private readonly taskModel: Model<TaskEntity>,
   ) {}
   async create(createTaskDto: CreateTaskDto) {
     try {
@@ -24,9 +25,9 @@ export class TaskService {
     }
   }
 
-  findAll() {
+  async findAll() {
     try {
-      return this.taskModel.find().populate('createdBy', 'email');
+      return await this.taskModel.find().populate('createdBy', 'email');
     } catch (error) {
       throw new BadRequestException(
         error.message || 'Failed to retrieve tasks',
@@ -34,9 +35,11 @@ export class TaskService {
     }
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     try {
-      const task = this.taskModel.findById(id).populate('createdBy', 'email');
+      const task = await this.taskModel
+        .findById(id)
+        .populate('createdBy', 'email');
       if (!task) {
         throw new BadRequestException('Task not found');
       }
@@ -46,24 +49,29 @@ export class TaskService {
     }
   }
 
-  update(id: string, updateTaskDto: UpdateTaskDto) {
+  async update(id: string, updateTaskDto: UpdateTaskDto) {
     try {
-      const updatedTask = this.taskModel.updateMany(
-        { _id: id },
-        { $set: updateTaskDto },
+      const updatedTask = await this.taskModel.findByIdAndUpdate(
+        id,
+        updateTaskDto,
+        {
+          new: true,
+        },
       );
       if (!updatedTask) {
         throw new BadRequestException('Task not found or update failed');
       }
+      console.log('Updated Task:', updatedTask);
+
       return updatedTask;
     } catch (error) {
       throw new BadRequestException(error.message || 'Failed to update task');
     }
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     try {
-      const deletedTask = this.taskModel.findByIdAndDelete(id);
+      const deletedTask = await this.taskModel.findByIdAndDelete(id);
       if (!deletedTask) {
         throw new BadRequestException('Task not found or delete failed');
       }
