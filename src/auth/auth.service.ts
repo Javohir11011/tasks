@@ -1,26 +1,69 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
+import { RegisterUserDto } from './dto/register.dto';
+import { LoginUserDto } from './dto/login.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { BycrptService } from 'src/config/bycrpt/bycrpt.service';
+import { TokenService } from 'src/config/jwt/creatJwt.service';
+import { StudentEntity } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(
+    @InjectModel('User') private readonly authModel: Model<StudentEntity>,
+    private readonly bcryptService: BycrptService,
+    private readonly jwtService: TokenService,
+  ) {}
+  async registerUser(dto: RegisterUserDto) {
+    try {
+      const userEmail = await this.authModel.findOne({ email: dto.email });
+      if (userEmail) {
+        throw new ConflictException('Email already exists');
+      }
+      const password = await this.bcryptService.encrypt(dto.password);
+      const newUser = new this.authModel({ ...dto, password });
+      const savedUser = await newUser.save();
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+      const { password: _, ...result } = savedUser.toObject();
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+      return result;
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Registration failed');
+    }
   }
+  async loginUser(dto: LoginUserDto) {
+    const user = await this.authModel
+      .findOne({ email: dto.email })
+      .select('password');
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    if (!user) {
+      throw new BadRequestException('Invalid credentials');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const checkPassword = await this.bcryptService.compare(
+      dto.password,
+      user.password,
+    );
+
+    if (!checkPassword) {
+      throw new BadRequestException('Password is incorrect');
+    }
+
+    const payload = {
+      id: user.id,
+      role: user.role,
+    };
+
+    const accessToken = this.jwtService.createAccessToken(payload);
+    const refreshToken = this.jwtService.createRefreshToken(payload);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
