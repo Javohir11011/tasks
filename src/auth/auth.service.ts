@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BycrptService } from 'src/config/bycrpt/bycrpt.service';
 import { TokenService } from 'src/config/jwt/creatJwt.service';
-import { StudentEntity } from 'src/user/entities/user.entity';
+import { StudentEntity } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class AuthService {
