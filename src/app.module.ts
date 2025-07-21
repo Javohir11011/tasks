@@ -6,7 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CustomJwtModule } from './config/jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { BycrptService } from './config/bycrpt/bycrpt.service';
-import { CourseModule } from './course/course.module';
 
 @Module({
   imports: [
@@ -16,7 +15,6 @@ import { CourseModule } from './course/course.module';
     UserModule,
     TaskModule,
     CustomJwtModule,
-    CourseModule,
   ],
   controllers: [],
   providers: [BycrptService],

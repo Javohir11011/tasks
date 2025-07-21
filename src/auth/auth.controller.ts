@@ -12,26 +12,13 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Register new user' })
-  @ApiBody({ type: RegisterUserDto })
-  @ApiResponse({ status: 200, description: 'User registered successfully.' })
-  @ApiResponse({ status: 400, description: 'Bad Request. Invalid input.' })
   register(@Body() dto: RegisterUserDto) {
     return this.authService.registerUser(dto);
   }
 
   @Public()
   @Post('login')
-  @ApiOperation({ summary: 'Login user' })
-  @ApiBody({ type: LoginUserDto })
-  @ApiResponse({ status: 200, description: 'User logged in successfully.' })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request. Invalid credentials.',
-  })
   login(@Body() dto: LoginUserDto) {
-    console.log(dto);
-
     return this.authService.loginUser(dto);
   }
 }

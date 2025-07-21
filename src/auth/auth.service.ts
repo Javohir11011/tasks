@@ -9,18 +9,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BycrptService } from 'src/config/bycrpt/bycrpt.service';
 import { TokenService } from 'src/config/jwt/creatJwt.service';
-import { StudentEntity } from 'src/auth/entities/user.entity';
+import { StudentEntity } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel('Student') private readonly authModel: Model<StudentEntity>,
+    @InjectModel('User') private readonly authModel: Model<StudentEntity>,
     private readonly bcryptService: BycrptService,
     private readonly jwtService: TokenService,
   ) {}
   async registerUser(dto: RegisterUserDto) {
-    console.log('dto', dto);
-
     try {
       const userEmail = await this.authModel.findOne({ email: dto.email });
       if (userEmail) {
